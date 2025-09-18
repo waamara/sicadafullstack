@@ -20,7 +20,7 @@ const navigation = [
   { name: "Overview", href: "/", icon: BarChart3 },
   { name: "Subscription Plans", href: "/subscription-plans", icon: CreditCard },
   { name: "Settings", href: "/settings", icon: Settings },
-  { name: "Support", href: "/support", icon: HelpCircle },
+  { name: "ticket", href: "/support", icon: HelpCircle },
 ]
 
 interface DashboardLayoutProps {
@@ -117,7 +117,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Users</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Log out</DropdownMenuItem>

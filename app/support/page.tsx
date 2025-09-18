@@ -1,5 +1,5 @@
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { SupportContent } from "@/components/support-content"
+import { SupportContent } from "@/components/ticket"
 
 export default function SupportPage() {
   return (
