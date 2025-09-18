@@ -33,7 +33,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border">
+      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-none border-sidebar-border">
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center px-6">
@@ -83,7 +83,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main content */}
       <div className="pl-64">
         {/* Top header */}
-        <header className="bg-background border-b border-border">
+        <header className="bg-sidebar border-none border-border">
           <div className="flex h-16 items-center justify-between px-6">
             {/* Breadcrumb */}
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">

@@ -5,7 +5,7 @@
 
 :root {
   /* Updated color palette to match design brief with green theme */
-  --background: oklch(1 0 0); /* Pure white */
+  --background: #FAFAFA; /* Pure white */
   --foreground: oklch(0.35 0 0); /* Dark gray #374151 */
   --card: oklch(0.98 0.02 142); /* Light green tint #f0fdf4 */
   --card-foreground: oklch(0.35 0 0);
@@ -30,7 +30,7 @@
   --chart-4: oklch(0.65 0.15 320);
   --chart-5: oklch(0.6 0.15 280);
   --radius: 0.5rem;
-  --sidebar: oklch(0.98 0.02 142);
+  --sidebar: oklch(100% 0.00011 271.152 / 0.776);
   --sidebar-foreground: oklch(0.35 0 0);
   --sidebar-primary: oklch(0.45 0.15 142);
   --sidebar-primary-foreground: oklch(1 0 0);
