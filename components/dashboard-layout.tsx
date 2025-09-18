@@ -19,7 +19,6 @@ import { BarChart3, CreditCard, Settings, HelpCircle, LogOut, Bell, ChevronDown 
 const navigation = [
   { name: "Overview", href: "/", icon: BarChart3 },
   { name: "Subscription Plans", href: "/subscription-plans", icon: CreditCard },
-  { name: "Settings", href: "/settings", icon: Settings },
   { name: "ticket", href: "/support", icon: HelpCircle },
 ]
 
