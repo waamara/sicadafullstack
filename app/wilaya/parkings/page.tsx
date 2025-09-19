@@ -1,12 +1,12 @@
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { SettingsContent } from "@/components/users"
+import { WilayaParkingListContent } from "@/components/wilaya-parking-list"
 import { ProtectedRoute } from "@/components/protected-route"
 
-export default function SettingsPage() {
+export default function WilayaParkingListPage() {
   return (
-    <ProtectedRoute allowedPortals={['business']}>
+    <ProtectedRoute allowedPortals={['wilaya']}>
       <DashboardLayout>
-        <SettingsContent />
+        <WilayaParkingListContent />
       </DashboardLayout>
     </ProtectedRoute>
   )

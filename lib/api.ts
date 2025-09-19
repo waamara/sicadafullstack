@@ -1,5 +1,5 @@
-import { Ticket, User, DashboardStats, ApiResponse } from './types'
-import { mockTickets, mockUsers, mockDashboardStats } from './mock-data'
+import { Ticket, User, DashboardStats, ApiResponse, ParkingRequest, ParkingLocation } from './types'
+import { mockTickets, mockUsers, mockDashboardStats, mockParkingRequests, mockParkingLocations } from './mock-data'
 
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -35,7 +35,7 @@ export class ApiService {
     }
   }
 
-  static async updateTicketStatus(id: string, status: 'approved' | 'rejected'): Promise<ApiResponse<Ticket>> {
+  static async updateTicketStatus(id: string, status: 'approved' | 'rejected' | 'in_progress' | 'resolved'): Promise<ApiResponse<Ticket>> {
     await delay(500)
     const ticketIndex = mockTickets.findIndex(t => t.id === id)
     
@@ -54,6 +54,29 @@ export class ApiService {
       data: mockTickets[ticketIndex],
       success: true,
       message: `Ticket ${status} successfully`
+    }
+  }
+
+  static async updateTicketResolution(id: string, status: 'resolved', resolution: string): Promise<ApiResponse<Ticket>> {
+    await delay(500)
+    const ticketIndex = mockTickets.findIndex(t => t.id === id)
+    
+    if (ticketIndex === -1) {
+      return {
+        data: {} as Ticket,
+        success: false,
+        message: 'Ticket not found'
+      }
+    }
+
+    mockTickets[ticketIndex].status = status
+    mockTickets[ticketIndex].resolution = resolution
+    mockTickets[ticketIndex].updatedAt = new Date().toISOString()
+
+    return {
+      data: mockTickets[ticketIndex],
+      success: true,
+      message: 'Ticket resolved successfully'
     }
   }
 
@@ -133,6 +156,76 @@ export class ApiService {
       data: true,
       success: true,
       message: 'User deleted successfully'
+    }
+  }
+
+  // Parking Requests API
+  static async getParkingRequests(): Promise<ApiResponse<ParkingRequest[]>> {
+    await delay(600)
+    return {
+      data: mockParkingRequests,
+      success: true,
+      message: 'Parking requests retrieved successfully'
+    }
+  }
+
+  static async updateParkingRequestStatus(id: string, status: 'approved' | 'rejected' | 'in_review', reviewNotes?: string): Promise<ApiResponse<ParkingRequest>> {
+    await delay(500)
+    const requestIndex = mockParkingRequests.findIndex(r => r.id === id)
+    
+    if (requestIndex === -1) {
+      return {
+        data: {} as ParkingRequest,
+        success: false,
+        message: 'Parking request not found'
+      }
+    }
+
+    mockParkingRequests[requestIndex].status = status
+    mockParkingRequests[requestIndex].updatedAt = new Date().toISOString()
+    if (reviewNotes) {
+      mockParkingRequests[requestIndex].reviewNotes = reviewNotes
+    }
+
+    return {
+      data: mockParkingRequests[requestIndex],
+      success: true,
+      message: `Parking request ${status} successfully`
+    }
+  }
+
+  // Parking Locations API
+  static async getParkingLocations(): Promise<ApiResponse<ParkingLocation[]>> {
+    await delay(600)
+    return {
+      data: mockParkingLocations,
+      success: true,
+      message: 'Parking locations retrieved successfully'
+    }
+  }
+
+  static async updateParkingLocation(id: string, updates: Partial<ParkingLocation>): Promise<ApiResponse<ParkingLocation>> {
+    await delay(500)
+    const locationIndex = mockParkingLocations.findIndex(l => l.id === id)
+    
+    if (locationIndex === -1) {
+      return {
+        data: {} as ParkingLocation,
+        success: false,
+        message: 'Parking location not found'
+      }
+    }
+
+    mockParkingLocations[locationIndex] = {
+      ...mockParkingLocations[locationIndex],
+      ...updates,
+      updatedAt: new Date().toISOString()
+    }
+
+    return {
+      data: mockParkingLocations[locationIndex],
+      success: true,
+      message: 'Parking location updated successfully'
     }
   }
 }

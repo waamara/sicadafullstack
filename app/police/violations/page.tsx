@@ -1,12 +1,12 @@
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { SettingsContent } from "@/components/users"
+import { PoliceViolationsContent } from "@/components/police-violations"
 import { ProtectedRoute } from "@/components/protected-route"
 
-export default function SettingsPage() {
+export default function PoliceViolationsPage() {
   return (
-    <ProtectedRoute allowedPortals={['business']}>
+    <ProtectedRoute allowedPortals={['police']}>
       <DashboardLayout>
-        <SettingsContent />
+        <PoliceViolationsContent />
       </DashboardLayout>
     </ProtectedRoute>
   )

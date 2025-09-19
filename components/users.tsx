@@ -505,7 +505,7 @@ export function SettingsContent() {
                 <h3 className="font-medium">Database Status</h3>
                 <p className="text-sm text-green-600">Connected</p>
               </div>
-              <div>
+    <div>
                 <h3 className="font-medium">API Status</h3>
                 <p className="text-sm text-green-600">Operational</p>
               </div>
