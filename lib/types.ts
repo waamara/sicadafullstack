@@ -1,7 +1,7 @@
 export interface Ticket {
   id: string
   title: string
-  type: 'parking' | 'equipment' | 'access' | 'complaint' | 'violation' | 'other'
+  type: 'parking' | 'equipment' | 'access' | 'complaint' | 'violation' | 'other' | 'user_request'
   status: 'pending' | 'approved' | 'rejected' | 'in_progress' | 'resolved'
   priority: 'low' | 'medium' | 'high' | 'urgent'
   createdAt: string

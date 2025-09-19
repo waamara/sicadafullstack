@@ -9,10 +9,10 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AlertCircle, CheckCircle, Edit, MoreHorizontal, Plus, RefreshCw, Trash2, User, UserCheck, UserX } from 'lucide-react'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { AlertCircle, CheckCircle, Edit, MoreHorizontal, RefreshCw, Trash2, User, UserCheck, UserX } from 'lucide-react'
 import { User as UserType } from '@/lib/types'
 import { ApiService } from '@/lib/api'
 
@@ -22,8 +22,16 @@ export function SubscriptionPlansContent() {
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [processing, setProcessing] = useState<string | null>(null)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<UserType | null>(null)
+  const [editForm, setEditForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    idCard: '',
+    department: '',
+    position: '',
+    status: 'active' as 'active' | 'inactive'
+  })
 
   const fetchUsers = async () => {
     try {
@@ -84,6 +92,44 @@ export function SubscriptionPlansContent() {
     }
   }
 
+  const handleEditUser = (user: UserType) => {
+    setEditingUser(user)
+    setEditForm({
+      fullName: user.fullName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      idCard: user.idCard || '',
+      department: user.department || '',
+      position: user.position || '',
+      status: user.status
+    })
+  }
+
+  const handleUpdateUser = async () => {
+    if (!editingUser) return
+
+    try {
+      setProcessing(editingUser.id)
+      const response = await ApiService.updateUser(editingUser.id, editForm)
+      if (response.success) {
+        setUsers(prev => prev.map(user => 
+          user.id === editingUser.id 
+            ? { ...user, ...editForm }
+            : user
+        ))
+        setEditingUser(null)
+        setError(null)
+      } else {
+        setError(response.message || 'Failed to update user')
+      }
+    } catch (err) {
+      setError('An error occurred while updating user')
+    } finally {
+      setProcessing(null)
+    }
+  }
+
+
   const getStatusIcon = (status: UserType['status']) => {
     switch (status) {
       case 'active':
@@ -121,7 +167,7 @@ export function SubscriptionPlansContent() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-            <p className="text-muted-foreground">Manage employee information and access</p>
+            <p className="text-muted-foreground">Manage existing employee accounts and approve user requests</p>
           </div>
         </div>
         
@@ -155,7 +201,7 @@ export function SubscriptionPlansContent() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-            <p className="text-muted-foreground">Manage employee information and access</p>
+            <p className="text-muted-foreground">Manage existing employee accounts and approve user requests</p>
           </div>
         </div>
         
@@ -176,16 +222,12 @@ export function SubscriptionPlansContent() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-          <p className="text-muted-foreground">Manage employee information and access</p>
+          <p className="text-muted-foreground">Manage existing employee accounts and approve user requests</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button onClick={fetchUsers} variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
-          </Button>
-          <Button onClick={() => setIsCreateDialogOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add User
           </Button>
         </div>
       </div>
@@ -273,7 +315,7 @@ export function SubscriptionPlansContent() {
                             )}
                           </Button>
                           <Button
-                            onClick={() => setEditingUser(user)}
+                            onClick={() => handleEditUser(user)}
                             variant="outline"
                             size="sm"
                           >
@@ -298,13 +340,13 @@ export function SubscriptionPlansContent() {
         </CardContent>
       </Card>
 
-      {/* Create User Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      {/* Edit User Dialog */}
+      <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Create a new employee account. Fill in the required information.
+              Update the user information below. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -312,49 +354,105 @@ export function SubscriptionPlansContent() {
               <Label htmlFor="fullName" className="text-right">
                 Full Name
               </Label>
-              <Input id="fullName" className="col-span-3" placeholder="John Doe" />
+              <Input
+                id="fullName"
+                value={editForm.fullName}
+                onChange={(e) => setEditForm(prev => ({ ...prev, fullName: e.target.value }))}
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="email" className="text-right">
                 Email
               </Label>
-              <Input id="email" type="email" className="col-span-3" placeholder="john@company.com" />
+              <Input
+                id="email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="phone" className="text-right">
                 Phone
               </Label>
-              <Input id="phone" className="col-span-3" placeholder="0666786789" />
+              <Input
+                id="phone"
+                value={editForm.phone}
+                onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="idCard" className="text-right">
                 ID Card
               </Label>
-              <Input id="idCard" className="col-span-3" placeholder="123456789" />
+              <Input
+                id="idCard"
+                value={editForm.idCard}
+                onChange={(e) => setEditForm(prev => ({ ...prev, idCard: e.target.value }))}
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="department" className="text-right">
                 Department
               </Label>
-              <Input id="department" className="col-span-3" placeholder="Informatique" />
+              <Input
+                id="department"
+                value={editForm.department}
+                onChange={(e) => setEditForm(prev => ({ ...prev, department: e.target.value }))}
+                className="col-span-3"
+              />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="position" className="text-right">
                 Position
               </Label>
-              <Input id="position" className="col-span-3" placeholder="Manager" />
+              <Input
+                id="position"
+                value={editForm.position}
+                onChange={(e) => setEditForm(prev => ({ ...prev, position: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">
+                Status
+              </Label>
+              <Select value={editForm.status} onValueChange={(value: 'active' | 'inactive') => setEditForm(prev => ({ ...prev, status: value }))}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setEditingUser(null)}>
               Cancel
             </Button>
-            <Button onClick={() => setIsCreateDialogOpen(false)}>
-              Create User
+            <Button 
+              onClick={handleUpdateUser}
+              disabled={processing === editingUser?.id}
+            >
+              {processing === editingUser?.id ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Save Changes'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   )
 }

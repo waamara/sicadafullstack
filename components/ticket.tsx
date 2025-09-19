@@ -60,6 +60,30 @@ export function SupportContent() {
     }
   }
 
+  const handleApproveUserRequest = async (ticketId: string) => {
+    if (!confirm('Are you sure you want to approve this user request? This will create a new user account.')) return
+    
+    try {
+      setProcessing(ticketId)
+      const response = await ApiService.approveUserRequest(ticketId)
+      if (response.success) {
+        // Update the ticket in the local state
+        setTickets(prev => prev.map(ticket => 
+          ticket.id === ticketId 
+            ? { ...ticket, status: 'approved', updatedAt: new Date().toISOString() }
+            : ticket
+        ))
+        alert('User request approved successfully! A new user account has been created.')
+      } else {
+        setError(response.message || 'Failed to approve user request')
+      }
+    } catch (err) {
+      setError('An error occurred while approving user request')
+    } finally {
+      setProcessing(null)
+    }
+  }
+
   const getStatusIcon = (status: TicketType['status']) => {
     switch (status) {
       case 'pending':
@@ -295,32 +319,65 @@ export function SupportContent() {
                 {ticket.status === 'pending' && (
                   <div className="mt-4 pt-4 border-t">
                     <div className="flex items-center space-x-2">
-                      <Button
-                        onClick={() => handleStatusUpdate(ticket.id, 'approved')}
-                        disabled={processing === ticket.id}
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        {processing === ticket.id ? (
-                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                        )}
-                        Approve
-                      </Button>
-                      <Button
-                        onClick={() => handleStatusUpdate(ticket.id, 'rejected')}
-                        disabled={processing === ticket.id}
-                        size="sm"
-                        variant="destructive"
-                      >
-                        {processing === ticket.id ? (
-                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <AlertCircle className="h-4 w-4 mr-2" />
-                        )}
-                        Reject
-                      </Button>
+                      {ticket.type === 'user_request' ? (
+                        <>
+                          <Button
+                            onClick={() => handleApproveUserRequest(ticket.id)}
+                            disabled={processing === ticket.id}
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            {processing === ticket.id ? (
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                            )}
+                            Approve & Create User
+                          </Button>
+                          <Button
+                            onClick={() => handleStatusUpdate(ticket.id, 'rejected')}
+                            disabled={processing === ticket.id}
+                            size="sm"
+                            variant="destructive"
+                          >
+                            {processing === ticket.id ? (
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <AlertCircle className="h-4 w-4 mr-2" />
+                            )}
+                            Reject Request
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            onClick={() => handleStatusUpdate(ticket.id, 'approved')}
+                            disabled={processing === ticket.id}
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            {processing === ticket.id ? (
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                            )}
+                            Approve
+                          </Button>
+                          <Button
+                            onClick={() => handleStatusUpdate(ticket.id, 'rejected')}
+                            disabled={processing === ticket.id}
+                            size="sm"
+                            variant="destructive"
+                          >
+                            {processing === ticket.id ? (
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <AlertCircle className="h-4 w-4 mr-2" />
+                            )}
+                            Reject
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}

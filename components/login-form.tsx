@@ -11,21 +11,19 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Building2, Shield, Landmark, Eye, EyeOff, LogIn } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
-import { getAccountsByRole } from '@/lib/auth-accounts'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<'employee' | 'police_officer' | 'admin'>('employee')
   const [showPassword, setShowPassword] = useState(false)
-  const [selectedAccount, setSelectedAccount] = useState<string>('')
   const router = useRouter()
-  const { login, isLoading, error, clearError } = useAuth()
+  const { login, isLoading, error, clearError, user } = useAuth()
 
   const roleConfigs = {
     employee: {
       title: 'Business Portal',
-      description: 'Employee access to company resources',
+      description: 'Business admin access to company resources and user management',
       icon: Building2,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -50,22 +48,36 @@ export function LoginForm() {
   }
 
   const currentConfig = roleConfigs[role]
-  const availableAccounts = getAccountsByRole(role)
+
+  // Demo accounts for quick login
+  const demoAccounts = {
+    employee: [
+      { email: 'sarah.johnson@company.com', password: 'password123', name: 'Sarah Johnson (Admin)' },
+      { email: 'mohamed.khelil@company.com', password: 'password123', name: 'Mohamed Khelil (Admin)' },
+      { email: 'fatima.mansouri@company.com', password: 'password123', name: 'Fatima Mansouri (Admin)' },
+      { email: 'business.admin@company.com', password: 'admin123', name: 'Business Admin' }
+    ],
+    police_officer: [
+      { email: 'ahmed.police@police.dz', password: 'police123', name: 'Officer Ahmed Benali' },
+      { email: 'fatima.police@police.dz', password: 'police123', name: 'Officer Fatima Mansouri' }
+    ],
+    admin: [
+      { email: 'admin@sicada.dz', password: 'admin123', name: 'Admin System' }
+    ]
+  }
 
   const handleRoleChange = (newRole: 'employee' | 'police_officer' | 'admin') => {
     setRole(newRole)
-    setSelectedAccount('')
     setEmail('')
     setPassword('')
     clearError()
   }
 
   const handleAccountSelect = (accountEmail: string) => {
-    const account = availableAccounts.find(acc => acc.user.email === accountEmail)
+    const account = demoAccounts[role].find(acc => acc.email === accountEmail)
     if (account) {
-      setEmail(account.user.email)
+      setEmail(account.email)
       setPassword(account.password)
-      setSelectedAccount(accountEmail)
       clearError()
     }
   }
@@ -78,22 +90,23 @@ export function LoginForm() {
       return
     }
 
-    const success = await login({ email, password, role })
-    if (success) {
-      // Redirect based on role/portal
-      const account = availableAccounts.find(acc => acc.user.email === email)
-      if (account) {
-        switch (account.user.portal) {
-          case 'business':
-            router.push('/')
-            break
-          case 'police':
-            router.push('/police')
-            break
-          case 'wilaya':
-            router.push('/wilaya')
-            break
-        }
+    // Map frontend role to backend role
+    const backendRole = role === 'employee' ? 'admin' : role
+    const success = await login({ email, password, role: backendRole })
+    if (success && user) {
+      // Redirect based on user's portal
+      switch (user.portal) {
+        case 'business':
+          router.push('/')
+          break
+        case 'police':
+          router.push('/police')
+          break
+        case 'wilaya':
+          router.push('/wilaya')
+          break
+        default:
+          router.push('/')
       }
     }
   }
@@ -137,7 +150,7 @@ export function LoginForm() {
                     <SelectItem value="employee">
                       <div className="flex items-center space-x-2">
                         <Building2 className="h-4 w-4 text-blue-600" />
-                        <span>Business Portal</span>
+                        <span>Business Portal (Admin)</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="police_officer">
@@ -159,19 +172,16 @@ export function LoginForm() {
               {/* Quick Account Selection */}
               <div className="space-y-2">
                 <Label htmlFor="account">Quick Login (Select Account)</Label>
-                <Select value={selectedAccount} onValueChange={handleAccountSelect}>
+                <Select onValueChange={handleAccountSelect}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a predefined account" />
+                    <SelectValue placeholder="Choose a demo account" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableAccounts.map((account) => (
-                      <SelectItem key={account.user.email} value={account.user.email}>
+                    {demoAccounts[role].map((account) => (
+                      <SelectItem key={account.email} value={account.email}>
                         <div className="flex flex-col">
-                          <span className="font-medium">{account.user.fullName}</span>
-                          <span className="text-sm text-gray-500">{account.user.email}</span>
-                          {account.user.badgeNumber && (
-                            <span className="text-xs text-gray-400">Badge: {account.user.badgeNumber}</span>
-                          )}
+                          <span className="font-medium">{account.name}</span>
+                          <span className="text-sm text-gray-500">{account.email}</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -250,15 +260,22 @@ export function LoginForm() {
 
             {/* Demo Credentials */}
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Demo Credentials:</h4>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">
+                {role === 'employee' ? 'Business Admin Credentials:' : 'Demo Credentials:'}
+              </h4>
               <div className="space-y-1 text-xs text-gray-600">
-                {availableAccounts.map((account) => (
-                  <div key={account.user.email} className="flex justify-between">
-                    <span>{account.user.fullName}:</span>
+                {demoAccounts[role].map((account) => (
+                  <div key={account.email} className="flex justify-between">
+                    <span>{account.name}:</span>
                     <span className="font-mono">{account.password}</span>
                   </div>
                 ))}
               </div>
+              {role === 'employee' && (
+                <div className="mt-2 text-xs text-blue-600 font-medium">
+                  All business users have admin privileges and can manage other users
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

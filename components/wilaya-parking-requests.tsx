@@ -328,7 +328,7 @@ export function WilayaParkingRequestsContent() {
                 </div>
 
                 {/* Documents */}
-                {request.documents && request.documents.length > 0 && (
+                {request.documents && Array.isArray(request.documents) && request.documents.length > 0 && (
                   <div className="mt-4 pt-4 border-t">
                     <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">
                       Documents joints

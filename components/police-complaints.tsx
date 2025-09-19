@@ -25,17 +25,21 @@ export function PoliceComplaintsContent() {
     try {
       setLoading(true)
       setError(null)
-      const response = await ApiService.getTickets()
+      const response = await ApiService.getTicketsByPortal('police')
+      console.log('API Response:', response) // Debug log
       if (response.success) {
-        // Filter only police portal complaints
+        console.log('Raw tickets data:', response.data) // Debug log
+        // Filter only complaints (portal filtering is done by backend)
         const complaintTickets = response.data.filter(ticket => 
-          ticket.portal === 'police' && ticket.type === 'complaint'
+          ticket.type === 'complaint'
         )
+        console.log('Filtered complaint tickets:', complaintTickets) // Debug log
         setTickets(complaintTickets)
       } else {
         setError(response.message || 'Failed to fetch complaints')
       }
     } catch (err) {
+      console.error('Fetch tickets error:', err) // Debug log
       setError('An error occurred while fetching complaints')
     } finally {
       setLoading(false)

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { AuthContextType, AuthUser, LoginCredentials } from './auth-types'
-import { getAccountByEmail } from './auth-accounts'
+import { ApiService } from './api'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -18,17 +18,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Check for existing session on mount
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       try {
-        const storedUser = localStorage.getItem('auth_user')
-        if (storedUser) {
-          const userData = JSON.parse(storedUser)
-          setUser(userData)
-          setIsAuthenticated(true)
+        const token = localStorage.getItem('authToken')
+        if (token) {
+          const response = await ApiService.getProfile()
+          if (response.success) {
+            setUser(response.data)
+            setIsAuthenticated(true)
+          } else {
+            localStorage.removeItem('authToken')
+          }
         }
       } catch (err) {
         console.error('Error checking auth:', err)
-        localStorage.removeItem('auth_user')
+        localStorage.removeItem('authToken')
       } finally {
         setIsLoading(false)
       }
@@ -42,45 +46,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(true)
       setError(null)
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      const account = getAccountByEmail(credentials.email)
+      const response = await ApiService.login(credentials)
       
-      if (!account) {
-        setError('Invalid email address')
+      if (response.success) {
+        setUser(response.data.user)
+        setIsAuthenticated(true)
+        return true
+      } else {
+        setError(response.message || 'Login failed')
         return false
       }
-
-      if (account.password !== credentials.password) {
-        setError('Invalid password')
-        return false
-      }
-
-      if (account.user.role !== credentials.role) {
-        setError('Invalid role for this account')
-        return false
-      }
-
-      // Store user data
-      localStorage.setItem('auth_user', JSON.stringify(account.user))
-      setUser(account.user)
-      setIsAuthenticated(true)
-      
-      return true
-    } catch (err) {
-      setError('An error occurred during login')
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during login')
       return false
     } finally {
       setIsLoading(false)
     }
   }
 
-  const logout = () => {
-    localStorage.removeItem('auth_user')
-    setUser(null)
-    setIsAuthenticated(false)
-    setError(null)
+  const logout = async () => {
+    try {
+      await ApiService.logout()
+    } catch (err) {
+      console.error('Logout error:', err)
+    } finally {
+      localStorage.removeItem('authToken')
+      setUser(null)
+      setIsAuthenticated(false)
+      setError(null)
+    }
   }
 
   const clearError = () => {

@@ -316,12 +316,12 @@ export function WilayaParkingListContent() {
                 <div className="space-y-2 pt-2 border-t">
                   <h4 className="text-sm font-medium">Équipements</h4>
                   <div className="flex flex-wrap gap-1">
-                    {parking.features.slice(0, 3).map((feature, index) => (
+                    {parking.features && Array.isArray(parking.features) && parking.features.slice(0, 3).map((feature, index) => (
                       <Badge key={index} variant="secondary" className="text-xs">
                         {feature}
                       </Badge>
                     ))}
-                    {parking.features.length > 3 && (
+                    {parking.features && Array.isArray(parking.features) && parking.features.length > 3 && (
                       <Badge variant="secondary" className="text-xs">
                         +{parking.features.length - 3} autres
                       </Badge>
