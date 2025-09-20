@@ -5,10 +5,11 @@ import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
+import { AuthProvider } from "@/lib/auth-context"
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
-  description: "Modern admin dashboard for business management",
+  title: "Sicada Multi-Portal System",
+  description: "Business, Police, and Wilaya Portal Management System",
   generator: "v0.app",
 }
 
@@ -20,8 +21,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
-        <Suspense fallback={null}>{children}</Suspense>
-        <Analytics />
+        <AuthProvider>
+          <Suspense fallback={null}>{children}</Suspense>
+          <Analytics />
+        </AuthProvider>
       </body>
     </html>
   )

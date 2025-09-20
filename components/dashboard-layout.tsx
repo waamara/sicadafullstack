@@ -2,7 +2,7 @@
 
 import type React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -14,13 +14,29 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { BarChart3, CreditCard, Settings, HelpCircle, LogOut, Bell, ChevronDown } from "lucide-react"
+import { BarChart3, CreditCard, Settings, HelpCircle, LogOut, Bell, ChevronDown, Shield, Landmark, Users } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
 
-const navigation = [
+// Navigation configurations for different portals
+const businessNavigation = [
   { name: "Overview", href: "/", icon: BarChart3 },
-  { name: "Subscription Plans", href: "/subscription-plans", icon: CreditCard },
+  { name: "User Management", href: "/subscription-plans", icon: Users },
+  { name: "Support Tickets", href: "/support", icon: HelpCircle },
   { name: "Settings", href: "/settings", icon: Settings },
-  { name: "Support", href: "/support", icon: HelpCircle },
+]
+
+const policeNavigation = [
+  { name: "Dashboard", href: "/police", icon: BarChart3 },
+  { name: "Complaints", href: "/police/complaints", icon: HelpCircle },
+  { name: "Violations", href: "/police/violations", icon: Settings },
+  { name: "Officers", href: "/police/officers", icon: Users },
+]
+
+const wilayaNavigation = [
+  { name: "Dashboard", href: "/wilaya", icon: BarChart3 },
+  { name: "Parking Requests", href: "/wilaya/requests", icon: CreditCard },
+  { name: "Parking List", href: "/wilaya/parkings", icon: Settings },
+  { name: "Reports", href: "/wilaya/reports", icon: Users },
 ]
 
 interface DashboardLayoutProps {
@@ -29,6 +45,46 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, logout } = useAuth()
+
+  // Get navigation based on user's portal
+  const getNavigation = () => {
+    if (!user) return businessNavigation
+    
+    switch (user.portal) {
+      case 'business':
+        return businessNavigation
+      case 'police':
+        return policeNavigation
+      case 'wilaya':
+        return wilayaNavigation
+      default:
+        return businessNavigation
+    }
+  }
+
+  const navigation = getNavigation()
+
+  const handleLogout = () => {
+    logout()
+    router.push('/login')
+  }
+
+  const getPortalTitle = () => {
+    if (!user) return 'Business Portal'
+    
+    switch (user.portal) {
+      case 'business':
+        return 'Business Portal'
+      case 'police':
+        return 'Police Portal'
+      case 'wilaya':
+        return 'Wilaya Portal'
+      default:
+        return 'Business Portal'
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -37,7 +93,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex h-16 items-center px-6">
-            <h1 className="text-xl font-semibold text-sidebar-foreground">logo</h1>
+            <h1 className="text-xl font-semibold text-sidebar-foreground">
+              {getPortalTitle()}
+            </h1>
           </div>
 
           {/* Navigation */}
@@ -72,6 +130,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <Button
               variant="ghost"
               className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+              onClick={handleLogout}
             >
               <LogOut className="mr-3 h-5 w-5" />
               Logout
@@ -104,12 +163,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src="/professional-woman-avatar.png" />
-                      <AvatarFallback>AM</AvatarFallback>
+                      <AvatarImage src={user?.avatar || "/professional-woman-avatar.png"} />
+                      <AvatarFallback>
+                        {user?.fullName?.split(' ').map(n => n[0]).join('') || 'U'}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="text-left">
-                      <p className="text-sm font-medium">Ana Morgan</p>
-                      <p className="text-xs text-muted-foreground">Administrator</p>
+                      <p className="text-sm font-medium">{user?.fullName || 'User'}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {user?.role === 'police_officer' ? user.rank : user?.position || user?.role || 'User'}
+                      </p>
                     </div>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
@@ -117,10 +180,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  {user?.badgeNumber && (
+                    <DropdownMenuItem>Badge: {user.badgeNumber}</DropdownMenuItem>
+                  )}
+                  {user?.station && (
+                    <DropdownMenuItem>Station: {user.station}</DropdownMenuItem>
+                  )}
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Log out</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
