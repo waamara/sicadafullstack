@@ -36,30 +36,30 @@ export function OverviewContent() {
   const getActivityIcon = (type: ActivityType['type']) => {
     switch (type) {
       case 'ticket_created':
-        return <Ticket className="h-4 w-4 text-blue-500" />
+        return <Ticket className="h-4 w-4 text-black" />
       case 'ticket_approved':
-        return <CheckCircle className="h-4 w-4 text-green-500" />
+        return <CheckCircle className="h-4 w-4 text-black" />
       case 'ticket_rejected':
-        return <AlertCircle className="h-4 w-4 text-red-500" />
+        return <AlertCircle className="h-4 w-4 text-black" />
       case 'user_registered':
-        return <Users className="h-4 w-4 text-purple-500" />
+        return <Users className="h-4 w-4 text-black" />
       default:
-        return <Activity className="h-4 w-4 text-gray-500" />
+        return <Activity className="h-4 w-4 text-black" />
     }
   }
 
   const getActivityColor = (type: ActivityType['type']) => {
     switch (type) {
       case 'ticket_created':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-gray-100 text-black'
       case 'ticket_approved':
-        return 'bg-green-100 text-green-800'
+        return 'bg-gray-100 text-black'
       case 'ticket_rejected':
-        return 'bg-red-100 text-red-800'
+        return 'bg-gray-100 text-black'
       case 'user_registered':
-        return 'bg-purple-100 text-purple-800'
+        return 'bg-gray-100 text-black'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-black'
     }
   }
 
@@ -242,7 +242,7 @@ export function OverviewContent() {
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
                 <div className="flex items-center space-x-3">
-                  <Ticket className="h-5 w-5 text-blue-500" />
+                  <Ticket className="h-5 w-5 text-black" />
                   <span className="text-sm font-medium">Review Pending Tickets</span>
                 </div>
                 <span className="text-xs text-gray-500">{stats?.pendingTickets} pending</span>
@@ -250,7 +250,7 @@ export function OverviewContent() {
               
               <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
                 <div className="flex items-center space-x-3">
-                  <Users className="h-5 w-5 text-green-500" />
+                  <Users className="h-5 w-5 text-black" />
                   <span className="text-sm font-medium">Manage Users</span>
                 </div>
                 <span className="text-xs text-gray-500">{stats?.totalUsers} users</span>
@@ -258,7 +258,7 @@ export function OverviewContent() {
               
               <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
                 <div className="flex items-center space-x-3">
-                  <Activity className="h-5 w-5 text-purple-500" />
+                  <Activity className="h-5 w-5 text-black" />
                   <span className="text-sm font-medium">View Reports</span>
                 </div>
                 <span className="text-xs text-gray-500">Analytics</span>

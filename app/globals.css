@@ -7,7 +7,7 @@
   /* Updated color palette to match design brief with green theme */
   --background: #FAFAFA; /* Pure white */
   --foreground: oklch(0.35 0 0); /* Dark gray #374151 */
-  --card: oklch(0.98 0.02 142); /* Light green tint #f0fdf4 */
+  --card: oklch(1 0 0); /* Pure white */
   --card-foreground: oklch(0.35 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.35 0 0);

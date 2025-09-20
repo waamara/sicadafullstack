@@ -189,3 +189,4 @@ router.get('/police', authenticateToken, authorizePortal(['police']), async (req
 
 module.exports = router;
 
+

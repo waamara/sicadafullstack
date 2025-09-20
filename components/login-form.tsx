@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Building2, Shield, Landmark, Eye, EyeOff, LogIn } from 'lucide-react'
 import { useAuth } from '@/lib/auth-context'
+import { getAccountByEmail } from '@/lib/auth-accounts'
 
 export function LoginForm() {
   const [email, setEmail] = useState('')
@@ -52,17 +53,14 @@ export function LoginForm() {
   // Demo accounts for quick login
   const demoAccounts = {
     employee: [
-      { email: 'sarah.johnson@company.com', password: 'password123', name: 'Sarah Johnson (Admin)' },
-      { email: 'mohamed.khelil@company.com', password: 'password123', name: 'Mohamed Khelil (Admin)' },
-      { email: 'fatima.mansouri@company.com', password: 'password123', name: 'Fatima Mansouri (Admin)' },
-      { email: 'business.admin@company.com', password: 'admin123', name: 'Business Admin' }
+      { email: 'admin@company.com', password: 'admin123', name: 'Sarah Johnson (Admin)' }
     ],
     police_officer: [
-      { email: 'ahmed.police@police.dz', password: 'police123', name: 'Officer Ahmed Benali' },
-      { email: 'fatima.police@police.dz', password: 'police123', name: 'Officer Fatima Mansouri' }
+      { email: 'officer@police.dz', password: 'police123', name: 'Officer Ahmed Benali' },
+      { email: 'senior@police.dz', password: 'senior123', name: 'Officer Fatima Mansouri' }
     ],
     admin: [
-      { email: 'admin@sicada.dz', password: 'admin123', name: 'Admin System' }
+      { email: 'admin@wilaya.dz', password: 'wilaya123', name: 'Admin System' }
     ]
   }
 
@@ -93,20 +91,24 @@ export function LoginForm() {
     // Map frontend role to backend role
     const backendRole = role === 'employee' ? 'admin' : role
     const success = await login({ email, password, role: backendRole })
-    if (success && user) {
-      // Redirect based on user's portal
-      switch (user.portal) {
-        case 'business':
-          router.push('/')
-          break
-        case 'police':
-          router.push('/police')
-          break
-        case 'wilaya':
-          router.push('/wilaya')
-          break
-        default:
-          router.push('/')
+    if (success) {
+      // Get the user data from the login response or use the updated user state
+      const account = getAccountByEmail(email)
+      if (account) {
+        // Redirect based on user's portal
+        switch (account.user.portal) {
+          case 'business':
+            router.push('/')
+            break
+          case 'police':
+            router.push('/police')
+            break
+          case 'wilaya':
+            router.push('/wilaya')
+            break
+          default:
+            router.push('/')
+        }
       }
     }
   }
